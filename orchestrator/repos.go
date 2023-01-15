@@ -111,7 +111,7 @@ func BuildRepoImage(repoStoredInfo RepoStoredInfo) {
 	// @TODO: replace hardcoded docker file with one set by a repo config
 
 	logger.Info().Msg("Attempted to build docker image")
-	BuildImageFromDockerFile(fmt.Sprintf("%s/Dockerfile", unzipPath))
+	BuildImageFromDockerFile(repoStoredInfo, unzipPath)
 }
 
 func GetRepo(repoInfo RepoInfo) RepoStoredInfo {
