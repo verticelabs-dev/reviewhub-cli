@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"fmt"
 	"log"
 	"os"
@@ -8,13 +10,19 @@ import (
 	"github.com/google/uuid"
 )
 
+func HashString(input string) string {
+	bytes := sha1.Sum([]byte(input))
+
+	return hex.EncodeToString(bytes[:])
+}
+
 func GetStoragePath(appendedPath string) string {
 	path, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return fmt.Sprintf("%s%s/storage/", path, appendedPath)
+	return fmt.Sprintf("%s/storage/%s", path, appendedPath)
 }
 
 func GenerateUUID() string {

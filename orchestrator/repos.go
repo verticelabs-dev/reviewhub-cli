@@ -6,23 +6,34 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-
-	"github.com/rs/zerolog/log"
 )
 
-type OrchestratorRepoInfo struct {
-	Owner       string
-	Name        string
-	Branch      string
-	Url         string
-	StorageUUID string
+type RepoInfo struct {
+	Owner  string
+	Name   string
+	Branch string
 }
 
-func StoreRepo(res *http.Response) string {
-	logger := GetLogger()
+type RepoStoredInfo struct {
+	Owner           string
+	Name            string
+	Branch          string
+	Url             string
+	StorageFileHash string
+}
 
-	fileUUID := GenerateUUID()
-	filePath := GetStoragePath("repos/%s.zip")
+func storeRepoZip(fileHash string, res *http.Response) {
+	logger := GetLogger()
+	filePath := GetStoragePath(fmt.Sprintf("repos/%s.zip", fileHash))
+
+	_, err := os.Stat(filePath)
+	if os.IsNotExist(err) {
+		logger.Info().Str("hash", fileHash).Msg("Repo archive does not exist")
+	} else {
+		logger.Info().Str("hash", fileHash).Msg("Repo achive with hash already in storage")
+
+		return
+	}
 
 	// create file to write to
 	file, err := os.Create(filePath)
@@ -37,16 +48,18 @@ func StoreRepo(res *http.Response) string {
 		logger.Fatal().Msg(err.Error())
 	}
 
-	log.Info().Str("file_uuid", fileUUID).Msg("Successfully put repo in storage")
-
-	return fileUUID
+	logger.Info().Str("file hash", fileHash).Msg("Put repo archive in storage")
 }
 
-func StorePublicGithubRepoZip(repoOwner string, repoName string, branchName string) OrchestratorRepoInfo {
+func getRepoFileHash(info RepoInfo) string {
+	return HashString(fmt.Sprintf("%s/%s/%s", info.Owner, info.Name, info.Branch))
+}
+
+func GetRepo(repoInfo RepoInfo) RepoStoredInfo {
 	logger := GetLogger()
 
 	// construct URL for zip file
-	url := fmt.Sprintf("https://github.com/%s/%s/archive/%s.zip", repoOwner, repoName, branchName)
+	url := fmt.Sprintf("https://github.com/%s/%s/archive/%s.zip", repoInfo.Owner, repoInfo.Name, repoInfo.Branch)
 
 	// create HTTP client
 	client := &http.Client{}
@@ -69,13 +82,14 @@ func StorePublicGithubRepoZip(repoOwner string, repoName string, branchName stri
 		Logger.Fatal().Msg(fmt.Sprintf("Error: status code %s", strconv.Itoa(res.StatusCode)))
 	}
 
-	storageUUID := StoreRepo(res)
+	fileHash := getRepoFileHash(repoInfo)
+	storeRepoZip(fileHash, res)
 
-	return OrchestratorRepoInfo{
-		Owner:       repoOwner,
-		Name:        repoName,
-		Branch:      branchName,
-		Url:         url,
-		StorageUUID: storageUUID,
+	return RepoStoredInfo{
+		Owner:           repoInfo.Owner,
+		Name:            repoInfo.Name,
+		Branch:          repoInfo.Branch,
+		Url:             url,
+		StorageFileHash: fileHash,
 	}
 }
