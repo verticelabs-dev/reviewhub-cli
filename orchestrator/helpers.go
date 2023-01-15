@@ -14,7 +14,7 @@ func GetStoragePath(appendedPath string) string {
 		log.Fatal(err)
 	}
 
-	return fmt.Sprintf("%s%s", path, appendedPath)
+	return fmt.Sprintf("%s%s/storage/", path, appendedPath)
 }
 
 func GenerateUUID() string {

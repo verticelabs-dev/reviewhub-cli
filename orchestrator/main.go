@@ -2,36 +2,29 @@ package main
 
 import (
 	"fmt"
-	"verticelabs-dev/reviewhub/orchestrator/badger"
 
+	"github.com/go-redis/redis/v9"
 	"github.com/rs/zerolog/log"
 )
+
+var RedisClient Redis
 
 func main() {
 	log.Info().Msg("Orchestrator has started")
 	log.Info().Msg(fmt.Sprintf("Storage path is set to %s", GetStoragePath("")))
 
-	err := badger.InitDB()
+	client := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
 
-	if err != nil {
-		log.Fatal().Msg(err.Error())
-		return
-	}
+	RedisClient := &Redis{Client: client}
 
-	err = badger.SetString("test", "hello, world!")
-	if err != nil {
-		log.Fatal().Msg(err.Error())
-		return
-	}
-
-	storedData, err := badger.GetString("test")
-	if err != nil {
-		LogFatal(err)
-	}
-
-	log.Info().Msg(storedData)
 	log.Info().Msg("Successfully started BadgerDB instance")
-	defer badger.DB.Close()
+
+	val, _ := RedisClient.GetString("test")
+	log.Info().Msg(val)
 
 	//StorePublicGithubRepoZip("verticelabs-dev", "reviewhub-example-app", "main")
 	//StartContainerFromImage("dockersamples/101-tutorial")

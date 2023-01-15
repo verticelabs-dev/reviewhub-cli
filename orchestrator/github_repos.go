@@ -12,7 +12,7 @@ import (
 
 func StoreRepo(res *http.Response) string {
 	fileUUID := GenerateUUID()
-	filePath := GetStoragePath("/repos/%s.zip")
+	filePath := GetStoragePath("repos/%s.zip")
 
 	// create file to write to
 	file, err := os.Create(filePath)
