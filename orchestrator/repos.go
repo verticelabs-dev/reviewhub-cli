@@ -28,7 +28,7 @@ func storeRepoZip(fileHash string, res *http.Response) {
 
 	_, err := os.Stat(filePath)
 	if os.IsNotExist(err) {
-		logger.Info().Str("hash", fileHash).Msg("Repo archive does not exist")
+		logger.Info().Str("hash", fileHash).Msg("Repo archive with hash does not exist")
 	} else {
 		logger.Info().Str("hash", fileHash).Msg("Repo achive with hash already in storage")
 
