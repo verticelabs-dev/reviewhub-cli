@@ -14,11 +14,11 @@ func main() {
 
 	logger.Info().Msg("Successfully connected with Redis Server")
 
-	GetRepo(RepoInfo{
+	storedRepoInfo := GetRepo(RepoInfo{
 		Owner:  "verticelabs-dev",
 		Name:   "reviewhub-example-app",
 		Branch: "main",
 	})
 
-	//StartContainerFromImage("dockersamples/101-tutorial")
+	BuildRepoImage(storedRepoInfo)
 }

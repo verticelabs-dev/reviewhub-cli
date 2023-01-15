@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/google/uuid"
+	"github.com/rs/zerolog"
 )
 
 func HashString(input string) string {
@@ -31,6 +32,6 @@ func GenerateUUID() string {
 	return id.String()
 }
 
-func LogFatal(err any) {
-	log.Fatal(err)
+func LogFatal(err error, log *zerolog.Logger) {
+	logger.Fatal().Msg(err.Error())
 }

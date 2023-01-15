@@ -3,6 +3,12 @@ Orchestrator Init:
     ☐ Unzip and build an image
     ☐ Run the image and share URL to vist
 
+
+
+ReviewHub CLI:
+    ☐ See active review apps
+    ☐ 
+    
 Orchestrator State:
     ☐ list of active repos
     ☐ list of branches per repo
