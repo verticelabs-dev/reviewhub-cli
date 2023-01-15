@@ -1,0 +1,4 @@
+Orchestrator Init:
+    ☐ Fetch a zipped version of a repo by branch
+    ☐ Unzip and build an image
+    ☐ Run the image and share URL to vist
