@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"reviewhub-cli/orchestrator/app"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -12,7 +13,7 @@ import (
 )
 
 func BuildImageFromDockerFile(unzipPath string, imageName string) {
-	logger := GetLogger()
+	logger := app.GetLogger()
 	// cat dockerfiles.tar | docker build - -f dockerfiles/myDockerFile -t mydockerimage
 	// docker build -t myimage -f /path/to/Dockerfile.zip#Dockerfile .
 
@@ -43,7 +44,7 @@ func BuildImageFromDockerFile(unzipPath string, imageName string) {
 }
 
 func StartContainerFromImage(imageName string) {
-	logger := GetLogger()
+	logger := app.GetLogger()
 
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
