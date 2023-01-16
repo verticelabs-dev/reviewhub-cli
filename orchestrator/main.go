@@ -12,14 +12,14 @@ func main() {
 	logger.Info().Msg("Orchestrator has started")
 	logger.Info().Msg(fmt.Sprintf("Storage path is set to %s", GetStoragePath("")))
 
-	logger.Info().Msg("Successfully connected with Redis Server")
+	//AutoMigrateSqlite()
 
-	storedRepoInfo := GetRepo(RepoInfo{
-		Owner:  "verticelabs-dev",
-		Name:   "reviewhub-example-app",
-		Branch: "main",
-	})
+	// storedRepoInfo := GetRepo(RepoInfo{
+	// 	Owner:  "verticelabs-dev",
+	// 	Name:   "reviewhub-example-app",
+	// 	Branch: "main",
+	// })
 
-	BuildRepoImage(storedRepoInfo)
-	StartContainerFromImage(storedRepoInfo.ImageName)
+	//BuildRepoImage(storedRepoInfo)
+	//StartContainerFromImage(storedRepoInfo.ImageName)
 }

@@ -1,14 +1,21 @@
-module verticelabs-dev/reviewhub/orchestrator
+module reviewhub/orchestrator
 
 go 1.19
 
-require github.com/docker/docker v20.10.22+incompatible
+require (
+	github.com/docker/docker v20.10.22+incompatible
+	gorm.io/driver/sqlite v1.4.4
+	gorm.io/gorm v1.24.3
+)
 
 require (
 	github.com/Microsoft/hcsshim v0.9.6 // indirect
 	github.com/containerd/cgroups v1.0.4 // indirect
 	github.com/containerd/containerd v1.6.15 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
+	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/mattn/go-sqlite3 v1.14.16 // indirect
 	github.com/moby/sys/mount v0.3.3 // indirect
 	github.com/moby/sys/mountinfo v0.6.2 // indirect
 	github.com/moby/term v0.0.0-20221205130635-1aeaba878587 // indirect
