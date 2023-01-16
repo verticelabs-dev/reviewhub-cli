@@ -2,10 +2,7 @@ package main
 
 import (
 	"context"
-	"encoding/hex"
 	"fmt"
-	"io"
-	"os"
 	"os/exec"
 
 	"github.com/docker/docker/api/types"
@@ -14,7 +11,7 @@ import (
 	"github.com/docker/go-connections/nat"
 )
 
-func BuildImageFromDockerFile(repoInfo RepoStoredInfo, unzipPath string) {
+func BuildImageFromDockerFile(unzipPath string, imageName string) {
 	logger := GetLogger()
 	// cat dockerfiles.tar | docker build - -f dockerfiles/myDockerFile -t mydockerimage
 	// docker build -t myimage -f /path/to/Dockerfile.zip#Dockerfile .
@@ -26,19 +23,28 @@ func BuildImageFromDockerFile(repoInfo RepoStoredInfo, unzipPath string) {
 		Str("unzipPath", unzipPath).
 		Msg("Sending build command to docker")
 
-	cmd := exec.Command("docker", "build", "-t", repoInfo.Name, "-f", fullUnzipPath, unzipPath)
+	cmd := exec.Command("docker", "build", "-t", imageName, "-f", fullUnzipPath, unzipPath)
 
-	// has stdout if we want it
-	stdout, err := cmd.Output()
+	//stderr, _ := cmd.StderrPipe()
+	cmd.Start()
 
-	if err != nil {
-		LogFatal(err, logger)
-	}
+	// scanner := bufio.NewScanner(stderr)
+	// scanner.Split(bufio.ScanWords)
+	// for scanner.Scan() {
+	// 	m := scanner.Text()
 
-	logger.Info().Msg(hex.EncodeToString(stdout[:]))
+	// 	//logger.Info().Msg(m)
+	// }
+	cmd.Wait()
+
+	logger.Info().
+		Str("imageName", imageName).
+		Msg("Finished building docker image")
 }
 
 func StartContainerFromImage(imageName string) {
+	logger := GetLogger()
+
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
@@ -46,12 +52,12 @@ func StartContainerFromImage(imageName string) {
 	}
 	defer cli.Close()
 
-	out, err := cli.ImagePull(ctx, imageName, types.ImagePullOptions{})
-	if err != nil {
-		panic(err)
-	}
-	defer out.Close()
-	io.Copy(os.Stdout, out)
+	// out, err := cli.ImagePull(ctx, imageName, types.ImagePullOptions{})
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// defer out.Close()
+	// io.Copy(os.Stdout, out)
 
 	containerConfig := &container.Config{
 		Image: imageName,
@@ -62,7 +68,7 @@ func StartContainerFromImage(imageName string) {
 
 	hostConfig := &container.HostConfig{
 		PortBindings: nat.PortMap{
-			"80/tcp": []nat.PortBinding{
+			"8080/tcp": []nat.PortBinding{
 				{
 					HostIP:   "0.0.0.0",
 					HostPort: "4140",
@@ -80,5 +86,6 @@ func StartContainerFromImage(imageName string) {
 		panic(err)
 	}
 
-	fmt.Printf("Container was started with ID %v", resp.ID)
+	logger.Info().
+		Msg(fmt.Sprintf("Container was started with ID %s", resp.ID))
 }

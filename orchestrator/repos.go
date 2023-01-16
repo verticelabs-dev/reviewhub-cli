@@ -20,6 +20,7 @@ type RepoInfo struct {
 type RepoStoredInfo struct {
 	RepoInfo
 	Url             string
+	ImageName       string
 	StorageFileHash string
 	StorageFilePath string
 }
@@ -111,7 +112,8 @@ func BuildRepoImage(repoStoredInfo RepoStoredInfo) {
 	// @TODO: replace hardcoded docker file with one set by a repo config
 
 	logger.Info().Msg("Attempted to build docker image")
-	BuildImageFromDockerFile(repoStoredInfo, unzipPath)
+
+	BuildImageFromDockerFile(unzipPath, repoStoredInfo.ImageName)
 }
 
 func GetRepo(repoInfo RepoInfo) RepoStoredInfo {
@@ -147,6 +149,7 @@ func GetRepo(repoInfo RepoInfo) RepoStoredInfo {
 	return RepoStoredInfo{
 		RepoInfo:        repoInfo,
 		Url:             url,
+		ImageName:       fmt.Sprintf("%s:%s", repoInfo.Name, repoInfo.Branch),
 		StorageFileHash: fileHash,
 		StorageFilePath: filePath,
 	}
