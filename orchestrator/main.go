@@ -2,17 +2,15 @@ package main
 
 import (
 	"fmt"
-	"reviewhub-cli/orchestrator/app"
+	"reviewhub-cli/orchestrator/core"
 )
 
-var RedisClient Redis
-
 func main() {
-	logger := app.GetLogger()
+	logger := core.GetLogger()
 
 	logger.Info().Msg("Orchestrator has started")
 
-	logger.Info().Msg(fmt.Sprintf("Storage path is set to %s", app.GetStoragePath("")))
+	logger.Info().Msg(fmt.Sprintf("Storage path is set to %s", core.GetStoragePath("")))
 
 	//AutoMigrateSqlite()
 

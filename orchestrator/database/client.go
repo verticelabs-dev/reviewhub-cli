@@ -1,7 +1,7 @@
 package database
 
 import (
-	"reviewhub-cli/orchestrator/app"
+	"reviewhub-cli/orchestrator/core"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -14,8 +14,8 @@ func GetOrmInstance() *gorm.DB {
 		return db
 	}
 
-	logger := app.GetLogger()
-	databasePath := app.GetStoragePath("db/reviewhub.db")
+	logger := core.GetLogger()
+	databasePath := core.GetStoragePath("db/reviewhub.db")
 	db, err := gorm.Open(sqlite.Open(databasePath), &gorm.Config{})
 	if err != nil {
 		panic("Failed to connect with sqlite database")

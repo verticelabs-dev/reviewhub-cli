@@ -1,7 +1,7 @@
 package database
 
 import (
-	"reviewhub-cli/orchestrator/app"
+	"reviewhub-cli/orchestrator/core"
 
 	"gorm.io/gorm"
 )
@@ -13,7 +13,7 @@ type ControlledContainers struct {
 }
 
 func CreateControlledContainer(containerID string, repoName string) {
-	logger := app.GetLogger()
+	logger := core.GetLogger()
 
 	db := GetOrmInstance()
 
@@ -23,7 +23,7 @@ func CreateControlledContainer(containerID string, repoName string) {
 }
 
 func AutoMigrateSqlite() {
-	logger := app.GetLogger()
+	logger := core.GetLogger()
 
 	db := GetOrmInstance()
 

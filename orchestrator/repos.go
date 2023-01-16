@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"reviewhub-cli/orchestrator/app"
+	"reviewhub-cli/orchestrator/core"
 	"strconv"
 
 	"github.com/rs/zerolog"
@@ -36,8 +36,8 @@ func fileExists(filePath string) bool {
 }
 
 func storeRepoZip(fileHash string, res *http.Response) string {
-	logger := app.GetLogger()
-	filePath := app.GetStoragePath(fmt.Sprintf("repos/%s.zip", fileHash))
+	logger := core.GetLogger()
+	filePath := core.GetStoragePath(fmt.Sprintf("repos/%s.zip", fileHash))
 
 	if fileExists(filePath) {
 		logger.Info().Str("hash", fileHash).Msg("Repo archive with hash already in storage")
@@ -65,11 +65,11 @@ func storeRepoZip(fileHash string, res *http.Response) string {
 }
 
 func getRepoFileHash(info RepoInfo) string {
-	return app.HashString(fmt.Sprintf("%s/%s/%s", info.Owner, info.Name, info.Branch))
+	return core.HashString(fmt.Sprintf("%s/%s/%s", info.Owner, info.Name, info.Branch))
 }
 
 func unzipRepo(repoStoredInfo RepoStoredInfo, logger *zerolog.Logger) (string, error) {
-	tempPath := app.GetStoragePath("temp/unzip")
+	tempPath := core.GetStoragePath("temp/unzip")
 	unzipPath := fmt.Sprintf("%s/%s-%s", tempPath, repoStoredInfo.Name, repoStoredInfo.Branch)
 
 	if fileExists(unzipPath) {
@@ -101,12 +101,12 @@ func unzipRepo(repoStoredInfo RepoStoredInfo, logger *zerolog.Logger) (string, e
 }
 
 func BuildRepoImage(repoStoredInfo RepoStoredInfo) {
-	logger := app.GetLogger()
+	logger := core.GetLogger()
 
 	unzipPath, err := unzipRepo(repoStoredInfo, logger)
 
 	if err != nil {
-		app.LogFatal(err)
+		core.LogFatal(err)
 		return
 	}
 
@@ -118,7 +118,7 @@ func BuildRepoImage(repoStoredInfo RepoStoredInfo) {
 }
 
 func GetRepo(repoInfo RepoInfo) RepoStoredInfo {
-	logger := app.GetLogger()
+	logger := core.GetLogger()
 
 	// construct URL for zip file
 	url := fmt.Sprintf("https://github.com/%s/%s/archive/%s.zip", repoInfo.Owner, repoInfo.Name, repoInfo.Branch)
