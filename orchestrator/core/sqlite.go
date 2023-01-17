@@ -1,4 +1,4 @@
-package database
+package core
 
 import (
 	"gorm.io/driver/sqlite"
@@ -7,7 +7,7 @@ import (
 
 var db *gorm.DB
 
-func GetOrmInstance() *gorm.DB {
+func GetGormDB() *gorm.DB {
 	if db != nil {
 		return db
 	}

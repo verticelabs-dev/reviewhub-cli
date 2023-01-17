@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"reviewhub-cli/orchestrator/core"
+	"reviewhub-cli/orchestrator/docker_engine"
 	"strconv"
 
 	"github.com/rs/zerolog"
@@ -35,8 +37,8 @@ func fileExists(filePath string) bool {
 }
 
 func storeRepoZip(fileHash string, res *http.Response) string {
-	logger := GetLogger()
-	filePath := GetStoragePath(fmt.Sprintf("repos/%s.zip", fileHash))
+	logger := core.GetLogger()
+	filePath := core.GetStoragePath(fmt.Sprintf("repos/%s.zip", fileHash))
 
 	if fileExists(filePath) {
 		logger.Info().Str("hash", fileHash).Msg("Repo archive with hash already in storage")
@@ -64,11 +66,11 @@ func storeRepoZip(fileHash string, res *http.Response) string {
 }
 
 func getRepoFileHash(info RepoInfo) string {
-	return HashString(fmt.Sprintf("%s/%s/%s", info.Owner, info.Name, info.Branch))
+	return core.HashString(fmt.Sprintf("%s/%s/%s", info.Owner, info.Name, info.Branch))
 }
 
 func unzipRepo(repoStoredInfo RepoStoredInfo, logger *zerolog.Logger) (string, error) {
-	tempPath := GetStoragePath("temp/unzip")
+	tempPath := core.GetStoragePath("temp/unzip")
 	unzipPath := fmt.Sprintf("%s/%s-%s", tempPath, repoStoredInfo.Name, repoStoredInfo.Branch)
 
 	if fileExists(unzipPath) {
@@ -100,12 +102,12 @@ func unzipRepo(repoStoredInfo RepoStoredInfo, logger *zerolog.Logger) (string, e
 }
 
 func BuildRepoImage(repoStoredInfo RepoStoredInfo) {
-	logger := GetLogger()
+	logger := core.GetLogger()
 
 	unzipPath, err := unzipRepo(repoStoredInfo, logger)
 
 	if err != nil {
-		LogFatal(err, logger)
+		core.LogFatal(err)
 		return
 	}
 
@@ -113,11 +115,11 @@ func BuildRepoImage(repoStoredInfo RepoStoredInfo) {
 
 	logger.Info().Msg("Attempted to build docker image")
 
-	BuildImageFromDockerFile(unzipPath, repoStoredInfo.ImageName)
+	docker_engine.BuildImageFromDockerFile(unzipPath, repoStoredInfo.ImageName)
 }
 
 func GetRepo(repoInfo RepoInfo) RepoStoredInfo {
-	logger := GetLogger()
+	logger := core.GetLogger()
 
 	// construct URL for zip file
 	url := fmt.Sprintf("https://github.com/%s/%s/archive/%s.zip", repoInfo.Owner, repoInfo.Name, repoInfo.Branch)
@@ -134,7 +136,7 @@ func GetRepo(repoInfo RepoInfo) RepoStoredInfo {
 	// execute request
 	res, err := client.Do(req)
 	if err != nil {
-		logger.Fatal().Msg(err.Error())
+		core.LogFatal(err)
 	}
 	defer res.Body.Close()
 

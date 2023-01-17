@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"os"
@@ -17,4 +17,8 @@ var logger = zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.
 
 func GetLogger() *zerolog.Logger {
 	return &logger
+}
+
+func LogFatal(err error) {
+	logger.Fatal().Msg(err.Error())
 }

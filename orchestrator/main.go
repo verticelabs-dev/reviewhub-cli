@@ -2,24 +2,28 @@ package main
 
 import (
 	"fmt"
+	"reviewhub-cli/orchestrator/core"
+	"reviewhub-cli/orchestrator/docker_engine"
 )
 
-var RedisClient Redis
-
 func main() {
-	logger := GetLogger()
+	logger := core.GetLogger()
 
 	logger.Info().Msg("Orchestrator has started")
-	logger.Info().Msg(fmt.Sprintf("Storage path is set to %s", GetStoragePath("")))
+	logger.Info().Msg("Running AutoMigrate on Models")
+	AutoMigrateModels()
+	logger.Info().Msg("Finished AutoMigrate on Models")
+
+	logger.Info().Msg(fmt.Sprintf("Storage path is set to %s", core.GetStoragePath("")))
 
 	//AutoMigrateSqlite()
 
-	// storedRepoInfo := GetRepo(RepoInfo{
-	// 	Owner:  "verticelabs-dev",
-	// 	Name:   "reviewhub-example-app",
-	// 	Branch: "main",
-	// })
+	storedRepoInfo := GetRepo(RepoInfo{
+		Owner:  "verticelabs-dev",
+		Name:   "reviewhub-example-app",
+		Branch: "main",
+	})
 
-	//BuildRepoImage(storedRepoInfo)
-	//StartContainerFromImage(storedRepoInfo.ImageName)
+	BuildRepoImage(storedRepoInfo)
+	docker_engine.StartContainerFromImage(storedRepoInfo.ImageName)
 }
