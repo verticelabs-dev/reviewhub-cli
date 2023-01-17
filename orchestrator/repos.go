@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"reviewhub-cli/orchestrator/core"
+	"reviewhub-cli/orchestrator/docker_engine"
 	"strconv"
 
 	"github.com/rs/zerolog"
@@ -114,7 +115,7 @@ func BuildRepoImage(repoStoredInfo RepoStoredInfo) {
 
 	logger.Info().Msg("Attempted to build docker image")
 
-	BuildImageFromDockerFile(unzipPath, repoStoredInfo.ImageName)
+	docker_engine.BuildImageFromDockerFile(unzipPath, repoStoredInfo.ImageName)
 }
 
 func GetRepo(repoInfo RepoInfo) RepoStoredInfo {
@@ -135,7 +136,7 @@ func GetRepo(repoInfo RepoInfo) RepoStoredInfo {
 	// execute request
 	res, err := client.Do(req)
 	if err != nil {
-
+		core.LogFatal(err)
 	}
 	defer res.Body.Close()
 
