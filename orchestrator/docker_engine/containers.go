@@ -36,15 +36,44 @@ type ContainerStartConfig struct {
 	HostPort      int
 }
 
+func ContainerDestroyByName(containerName string) {
+	logger := core.GetLogger()
+	cli, ctx := GetDockerCli()
+
+	containerNameFormatted := fmt.Sprintf("/%s", containerName)
+	containers, err := cli.ContainerList(ctx, types.ContainerListOptions{})
+	if err != nil {
+		panic(err)
+	}
+
+	for _, container := range containers {
+		if container.Names[0] == containerNameFormatted {
+			if err := cli.ContainerStop(ctx, container.ID, nil); err != nil {
+				panic(err)
+			}
+
+			if err := cli.ContainerRemove(ctx, container.ID, types.ContainerRemoveOptions{}); err != nil {
+				panic(err)
+			}
+
+			logger.Info().
+				Msg(fmt.Sprintf("Container was destroyed with ID %s", container.ID))
+		}
+	}
+}
+
 func ContainerStart(containerStartConfig ContainerStartConfig) string {
 	logger := core.GetLogger()
 	cli, ctx := GetDockerCli()
 
 	// setup exposed ports
-	portStr := fmt.Sprintf("%d/tcp", containerStartConfig.ExposedPort)
+	portStr := fmt.Sprintf("%d/tcp", containerStartConfig.HostPort)
+
 	exposedPorts := nat.PortSet{
 		nat.Port(portStr): struct{}{},
 	}
+
+	fmt.Println(exposedPorts)
 
 	// setup container config
 	containerConfig := &types.ContainerCreateConfig{
@@ -56,7 +85,7 @@ func ContainerStart(containerStartConfig ContainerStartConfig) string {
 	}
 
 	// setup host config
-	hostPortStr := fmt.Sprintf("%d", containerStartConfig.HostPort)
+	hostPortStr := fmt.Sprintf("%d/tcp", containerStartConfig.ExposedPort)
 	portBindings := nat.PortMap{
 		nat.Port(hostPortStr): []nat.PortBinding{
 			{
@@ -65,6 +94,8 @@ func ContainerStart(containerStartConfig ContainerStartConfig) string {
 			},
 		},
 	}
+
+	fmt.Println(portBindings)
 
 	hostConfig := &container.HostConfig{
 		PortBindings: portBindings,

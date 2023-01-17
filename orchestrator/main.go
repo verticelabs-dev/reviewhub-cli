@@ -35,8 +35,11 @@ func main() {
 		ImageName:     storedRepoInfo.ImageName,
 		ExposedPort:   8080,
 		HostIP:        "0.0.0.0",
-		HostPort:      4311,
+		HostPort:      4040,
 	}
+
+	logger.Info().Msg(fmt.Sprintf("Container name is %s", containerStartConfig.ContainerName))
+	docker_engine.ContainerDestroyByName(containerStartConfig.ContainerName)
 
 	git_repo.BuildRepoImage(storedRepoInfo)
 	docker_engine.ContainerStart(containerStartConfig)
