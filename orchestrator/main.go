@@ -4,7 +4,13 @@ import (
 	"fmt"
 	"reviewhub-cli/orchestrator/core"
 	"reviewhub-cli/orchestrator/docker_engine"
+	"reviewhub-cli/orchestrator/git_repo"
 )
+
+type ReviewHubContainerStartTask struct {
+	repoInfo    git_repo.RepoStoredInfo
+	exposedPort int
+}
 
 func main() {
 	logger := core.GetLogger()
@@ -18,12 +24,20 @@ func main() {
 
 	//AutoMigrateSqlite()
 
-	storedRepoInfo := GetRepo(RepoInfo{
+	storedRepoInfo := git_repo.GetRepo(git_repo.RepoInfo{
 		Owner:  "verticelabs-dev",
 		Name:   "reviewhub-example-app",
 		Branch: "main",
 	})
 
-	BuildRepoImage(storedRepoInfo)
-	docker_engine.StartContainerFromImage(storedRepoInfo.ImageName)
+	containerStartConfig := docker_engine.ContainerStartConfig{
+		ContainerName: fmt.Sprintf("%s-%s", storedRepoInfo.Name, storedRepoInfo.Branch),
+		ImageName:     storedRepoInfo.ImageName,
+		ExposedPort:   8080,
+		HostIP:        "0.0.0.0",
+		HostPort:      4311,
+	}
+
+	git_repo.BuildRepoImage(storedRepoInfo)
+	docker_engine.ContainerStart(containerStartConfig)
 }

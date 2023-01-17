@@ -28,29 +28,46 @@ func IsContainerRunningByImageName(imageName string) bool {
 	return false
 }
 
-func StartContainerFromImage(imageName string) {
+type ContainerStartConfig struct {
+	ContainerName string
+	ImageName     string
+	ExposedPort   int
+	HostIP        string
+	HostPort      int
+}
+
+func ContainerStart(containerStartConfig ContainerStartConfig) string {
 	logger := core.GetLogger()
 	cli, ctx := GetDockerCli()
 
+	// setup exposed ports
+	portStr := fmt.Sprintf("%d/tcp", containerStartConfig.ExposedPort)
+	exposedPorts := nat.PortSet{
+		nat.Port(portStr): struct{}{},
+	}
+
+	// setup container config
 	containerConfig := &types.ContainerCreateConfig{
-		Name: "my-container",
+		Name: containerStartConfig.ContainerName,
 		Config: &container.Config{
-			Image: imageName,
-			ExposedPorts: nat.PortSet{
-				"4140/tcp": struct{}{},
+			Image:        containerStartConfig.ImageName,
+			ExposedPorts: exposedPorts,
+		},
+	}
+
+	// setup host config
+	hostPortStr := fmt.Sprintf("%d", containerStartConfig.HostPort)
+	portBindings := nat.PortMap{
+		nat.Port(hostPortStr): []nat.PortBinding{
+			{
+				HostIP:   containerStartConfig.HostIP,
+				HostPort: fmt.Sprintf("%d", containerStartConfig.HostPort),
 			},
 		},
 	}
 
 	hostConfig := &container.HostConfig{
-		PortBindings: nat.PortMap{
-			"8080/tcp": []nat.PortBinding{
-				{
-					HostIP:   "0.0.0.0",
-					HostPort: "4140",
-				},
-			},
-		},
+		PortBindings: portBindings,
 	}
 
 	resp, err := cli.ContainerCreate(ctx, containerConfig.Config, hostConfig, nil, nil, containerConfig.Name)
@@ -64,4 +81,6 @@ func StartContainerFromImage(imageName string) {
 
 	logger.Info().
 		Msg(fmt.Sprintf("Container was started with ID %s", resp.ID))
+
+	return resp.ID
 }
