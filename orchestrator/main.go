@@ -5,24 +5,21 @@ import (
 	"reviewhub-cli/orchestrator/core"
 	"reviewhub-cli/orchestrator/docker_engine"
 	"reviewhub-cli/orchestrator/git_repo"
+	"reviewhub-cli/orchestrator/webhooks"
 )
-
-type ReviewHubContainerStartTask struct {
-	repoInfo    git_repo.RepoStoredInfo
-	exposedPort int
-}
 
 func main() {
 	logger := core.GetLogger()
 
 	logger.Info().Msg("Orchestrator has started")
-	logger.Info().Msg("Running AutoMigrate on Models")
-	AutoMigrateModels()
-	logger.Info().Msg("Finished AutoMigrate on Models")
-
 	logger.Info().Msg(fmt.Sprintf("Storage path is set to %s", core.GetStoragePath("")))
+	// logger.Info().Msg("Running AutoMigrate on Models")
+	// AutoMigrateModels()
+	// logger.Info().Msg("Finished AutoMigrate on Models")
 
-	//AutoMigrateSqlite()
+	webhookAddress := ":7070"
+	logger.Info().Msg(fmt.Sprintf("Starting Webhook Server %s", webhookAddress))
+	webhooks.StartHttpServer(webhookAddress)
 
 	storedRepoInfo := git_repo.GetRepo(git_repo.RepoInfo{
 		Owner:  "verticelabs-dev",

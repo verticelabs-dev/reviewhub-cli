@@ -10,6 +10,7 @@ import (
 )
 
 func IsContainerRunningByImageName(imageName string) bool {
+
 	cli, ctx := GetDockerCli()
 
 	containers, err := cli.ContainerList(ctx, types.ContainerListOptions{})
