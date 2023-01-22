@@ -46,12 +46,22 @@ func handleBranchAction(w http.ResponseWriter, r *http.Request) {
 		Branch: branch,
 	})
 
+	portFinder := docker_engine.NewPortFinder(9000, 9500)
+	port := portFinder.GetUnassignedPort()
+
+	if err != nil {
+		logger.Error().Msg(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, "Could not assign a port to the container")
+		return
+	}
+
 	containerStartConfig := docker_engine.ContainerStartConfig{
 		ContainerName: fmt.Sprintf("%s-%s", storedRepoInfo.Name, storedRepoInfo.Branch),
 		ImageName:     storedRepoInfo.ImageName,
-		ExposedPort:   4040,
+		ExposedPort:   8080,
 		HostIP:        "0.0.0.0",
-		HostPort:      8081,
+		HostPort:      port,
 	}
 
 	logger.Info().Msg(fmt.Sprintf("Container name is %s", containerStartConfig.ContainerName))
