@@ -1,4 +1,4 @@
-package main
+package git_repo
 
 import (
 	"fmt"
@@ -12,20 +12,6 @@ import (
 
 	"github.com/rs/zerolog"
 )
-
-type RepoInfo struct {
-	Owner  string
-	Name   string
-	Branch string
-}
-
-type RepoStoredInfo struct {
-	RepoInfo
-	Url             string
-	ImageName       string
-	StorageFileHash string
-	StorageFilePath string
-}
 
 func fileExists(filePath string) bool {
 	_, err := os.Stat(filePath)
