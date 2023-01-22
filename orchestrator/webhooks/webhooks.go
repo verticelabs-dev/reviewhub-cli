@@ -49,9 +49,9 @@ func handleBranchAction(w http.ResponseWriter, r *http.Request) {
 	containerStartConfig := docker_engine.ContainerStartConfig{
 		ContainerName: fmt.Sprintf("%s-%s", storedRepoInfo.Name, storedRepoInfo.Branch),
 		ImageName:     storedRepoInfo.ImageName,
-		ExposedPort:   8080,
+		ExposedPort:   4040,
 		HostIP:        "0.0.0.0",
-		HostPort:      4040,
+		HostPort:      8081,
 	}
 
 	logger.Info().Msg(fmt.Sprintf("Container name is %s", containerStartConfig.ContainerName))

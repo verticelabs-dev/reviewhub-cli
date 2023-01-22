@@ -68,20 +68,18 @@ func ContainerStart(containerStartConfig ContainerStartConfig) string {
 	cli, ctx := GetDockerCli()
 
 	// setup exposed ports
-	portStr := fmt.Sprintf("%d/tcp", containerStartConfig.HostPort)
+	// portStr := fmt.Sprintf("%d/tcp", containerStartConfig.HostPort)
 
-	exposedPorts := nat.PortSet{
-		nat.Port(portStr): struct{}{},
-	}
-
-	fmt.Println(exposedPorts)
+	// exposedPorts := nat.PortSet{
+	// 	nat.Port(portStr): struct{}{},
+	// }
 
 	// setup container config
 	containerConfig := &types.ContainerCreateConfig{
 		Name: containerStartConfig.ContainerName,
 		Config: &container.Config{
-			Image:        containerStartConfig.ImageName,
-			ExposedPorts: exposedPorts,
+			Image: containerStartConfig.ImageName,
+			//ExposedPorts: exposedPorts,
 		},
 	}
 
@@ -95,8 +93,6 @@ func ContainerStart(containerStartConfig ContainerStartConfig) string {
 			},
 		},
 	}
-
-	fmt.Println(portBindings)
 
 	hostConfig := &container.HostConfig{
 		PortBindings: portBindings,
